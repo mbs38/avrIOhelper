@@ -7,6 +7,7 @@ outStates=0xFFFFFFFF;
 
 while(1) {
     setOuts();
+    readPins();
 }
 
 }
