@@ -2,20 +2,37 @@
 #include "io-helper.h"
 
 volatile uint8_t outStates[]={0,0,0,0};
+volatile uint8_t inStatesRaw[] = {0,0,0,0};
 volatile uint8_t inStates[] = {0,0,0,0};
+volatile uint8_t oldInstates[] = {0,0,0,0};
+
 
 /* @brief: copies a single bit from one char to another char (or arrays thereof)
 *
 *
 */
-/*
 void ioHelperCpArb(volatile uint8_t *source, uint16_t sourceNr,volatile uint8_t *target, uint16_t targetNr) {
 	if(*(source+(sourceNr/8))&(1<<(sourceNr-((sourceNr/8)*8))))
 	{
 		*(target+(targetNr/8))|=(1<<(targetNr-((targetNr/8)*8)));
 	} else *(target+(targetNr/8))&=~(1<<(targetNr-((targetNr/8)*8)));
 }
-*/
+
+volatile uint8_t ioHelperDebounceTable[32];
+
+/* debounceing: */
+void ioHelperDebounce(void) {
+	static volatile uint8_t tablePos=0; 
+	for(uint8_t i = 0; i<16; i++) {
+		ioHelperCpArb(inStatesRaw,i,ioHelperDebounceTable,i*8+tablePos);
+		if(ioHelperDebounceTable[i]==0) ioHelperSetBit(inStates,i,0);
+		else if(ioHelperDebounceTable[i]==0xFF) ioHelperSetBit(inStates,i,1);
+	}
+	if (tablePos<7) {
+		tablePos++;
+	} else tablePos=0;
+}
+
 
 void ioHelperSetBit(volatile uint8_t *list, uint8_t nr, uint8_t state) {
 	unsigned char ArC=0;
@@ -34,7 +51,7 @@ unsigned char ioHelperReadBit(volatile uint8_t *list, uint8_t nr) {
 }
 
 void ioHelperCpBit(uint8_t reg, uint8_t bi, uint8_t bo) {
-	ioHelperSetBit(inStates,bo,reg&(1<<bi));
+	ioHelperSetBit(inStatesRaw,bo,reg&(1<<bi));
 }
 
 uint8_t getBit1(uint8_t bit) {

@@ -6,6 +6,7 @@ int main(void) {
 	while(1) {
 	    ioHelperSetOuts(); //write data from outStates to ports
 	    ioHelperReadPins(); //read pins, arrange data into inStates
+		ioHelperDebounce();
 		
 		//read a specific bit from inStates
 		if(ioHelperReadBit(inStates,BitPinC5)) {

@@ -5,6 +5,7 @@ void ioHelperReadPins(void);
 void ioHelperIoConf(void);
 void ioHelperSetBit(volatile uint8_t *list, uint8_t nr, uint8_t state);
 unsigned char ioHelperReadBit(volatile uint8_t *list, uint8_t nr);
+void ioHelperDebounce(void);
 
 
 //Outputs
