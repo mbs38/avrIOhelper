@@ -1,5 +1,10 @@
+#ifndef _IO_HELPER_
+#define _IO_HELPER_
+
+#include <avr/io.h>
 extern volatile uint8_t outStates[4]; 
 extern volatile uint8_t inStates[4];
+extern volatile uint8_t ioHelperDebounceTable[32];
 void ioHelperSetOuts(void);
 void ioHelperReadPins(void);
 void ioHelperIoConf(void);
@@ -17,3 +22,5 @@ void ioHelperDebounce(void);
 //Pin | Bit in inStates
 #define BitPinC1 0
 #define BitPinC5 1
+
+#endif
