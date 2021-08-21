@@ -1,8 +1,10 @@
-extern volatile uint32_t outStates;
-extern volatile uint32_t inStates;
-void setOuts(void);
-void readPins(void);
-void ioConf(void);
+extern volatile uint8_t outStates[4]; 
+extern volatile uint8_t inStates[4];
+void ioHelperSetOuts(void);
+void ioHelperReadPins(void);
+void ioHelperIoConf(void);
+void ioHelperSetBit(volatile uint8_t *list, uint8_t nr, uint8_t state);
+unsigned char ioHelperReadBit(volatile uint8_t *list, uint8_t nr);
 
 
 //Outputs

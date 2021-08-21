@@ -1,29 +1,57 @@
 #include <avr/io.h>
 #include "io-helper.h"
 
-volatile uint32_t outStates = 0;
-volatile uint32_t inStates = 0;
+volatile uint8_t outStates[]={0,0,0,0};
+volatile uint8_t inStates[] = {0,0,0,0};
+
+/* @brief: copies a single bit from one char to another char (or arrays thereof)
+*
+*
+*/
+/*
+void ioHelperCpArb(volatile uint8_t *source, uint16_t sourceNr,volatile uint8_t *target, uint16_t targetNr) {
+	if(*(source+(sourceNr/8))&(1<<(sourceNr-((sourceNr/8)*8))))
+	{
+		*(target+(targetNr/8))|=(1<<(targetNr-((targetNr/8)*8)));
+	} else *(target+(targetNr/8))&=~(1<<(targetNr-((targetNr/8)*8)));
+}
+*/
+
+void ioHelperSetBit(volatile uint8_t *list, uint8_t nr, uint8_t state) {
+	unsigned char ArC=0;
+	ArC=nr/8;
+	if(state) *(list+ArC)|=(1<<(nr-(ArC*8)));
+	else *(list+ArC)&=~(1<<(nr-(ArC*8)));
+}
+
+unsigned char ioHelperReadBit(volatile uint8_t *list, uint8_t nr) {
+	unsigned char ArC=0;
+	ArC=nr/8;
+	if (*(list+ArC)&(1<<(nr-(ArC*8))))
+	{
+		return 1;
+	} else return 0;
+}
 
 void ioHelperCpBit(uint8_t reg, uint8_t bi, uint8_t bo) {
-    if(reg&(1<<bi)) inStates|=(1<<bo);
-    else inStates&=~(1<<bo);
+	ioHelperSetBit(inStates,bo,reg&(1<<bi));
 }
 
 uint8_t getBit1(uint8_t bit) {
-    if(outStates&(1<<bit)) return 1;
+    if(ioHelperReadBit(outStates,bit)) return 1;
     else return 0;
 }
 uint8_t getBit0(uint8_t bit) {
-    if(outStates&(1<<bit)) return 0;
+    if(ioHelperReadBit(outStates,bit)) return 0;
     else return 1;
 }
 
-void writeBit(volatile uint8_t * port, uint8_t bp, uint8_t bstate) {
-    if (outStates&(1<<bstate)) *(port) |= (1<<bp);
-    else *(port) &=~(1<<bp);
-}
+//void writeBit(volatile uint8_t * port, uint8_t bp, uint8_t bstate) {
+//    if (outStates&(1<<bstate)) *(port) |= (1<<bp);
+//    else *(port) &=~(1<<bp);
+//}
 
-void ioConf(void) {
+void ioHelperIoConf(void) {
 #ifdef DDRA
 DDRA|=0 
 #ifdef BitPA0
@@ -833,7 +861,7 @@ DDRZ|=0
 }
 
 
-void setOuts(void) {
+void ioHelperSetOuts(void) {
     #ifdef PORTA
     PORTA|=0
     #ifdef BitPA0
@@ -2345,7 +2373,7 @@ void setOuts(void) {
 }
 
 
-void readPins(void) {
+void ioHelperReadPins(void) {
 #ifdef PINA
 #ifdef BitPinA0
 ioHelperCpBit(PINA,0,BitPinA0);
