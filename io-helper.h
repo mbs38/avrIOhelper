@@ -2,9 +2,13 @@
 #define _IO_HELPER_
 
 #include <avr/io.h>
-extern volatile uint8_t outStates[4]; 
-extern volatile uint8_t inStates[4];
-extern volatile uint8_t ioHelperDebounceTable[32];
+
+#define nrOfOutputs 32 //must be multiple of 8
+#define nrOfInputs 32 //must be multiple of 8
+
+extern volatile uint8_t outStates[nrOfOutputs/8]; 
+extern volatile uint8_t inStates[nrOfInputs/8];
+extern volatile uint8_t ioHelperDebounceTable[nrOfInputs];
 void ioHelperSetOuts(void);
 void ioHelperReadPins(void);
 void ioHelperIoConf(void);

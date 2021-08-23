@@ -1,10 +1,10 @@
 #include <avr/io.h>
 #include "io-helper.h"
 
-volatile uint8_t outStates[]={0,0,0,0};
-volatile uint8_t inStatesRaw[] = {0,0,0,0};
-volatile uint8_t inStates[] = {0,0,0,0};
-volatile uint8_t oldInstates[] = {0,0,0,0};
+volatile uint8_t outStates[nrOfOutputs/8];
+volatile uint8_t inStatesRaw[nrOfInputs/8];
+volatile uint8_t inStates[nrOfInputs/8];
+volatile uint8_t oldInstates[nrOfInputs/8];
 
 
 /* @brief: copies a single bit from one char to another char (or arrays thereof)
@@ -18,12 +18,12 @@ void ioHelperCpArb(volatile uint8_t *source, uint16_t sourceNr,volatile uint8_t 
 	} else *(target+(targetNr/8))&=~(1<<(targetNr-((targetNr/8)*8)));
 }
 
-volatile uint8_t ioHelperDebounceTable[32];
+volatile uint8_t ioHelperDebounceTable[nrOfInputs];
 
 /* debounceing: */
 void ioHelperDebounce(void) {
 	static volatile uint8_t tablePos=0; 
-	for(uint8_t i = 0; i<16; i++) {
+	for(uint8_t i = 0; i<nrOfInputs; i++) {
 		ioHelperCpArb(inStatesRaw,i,ioHelperDebounceTable,i*8+tablePos);
 		if(ioHelperDebounceTable[i]==0) ioHelperSetBit(inStates,i,0);
 		else if(ioHelperDebounceTable[i]==0xFF) ioHelperSetBit(inStates,i,1);
@@ -69,6 +69,17 @@ uint8_t getBit0(uint8_t bit) {
 //}
 
 void ioHelperIoConf(void) {
+    for(uint8_t x=0; x<nrOfInputs; x++) {
+        ioHelperDebounceTable[x]=0;
+    }
+    for(uint8_t x=0; x<nrOfInputs/8; x++) {
+        inStates[x]=0;
+        inStatesRaw[x]=0;
+    }
+    for(uint8_t x=0; x<nrOfOutputs/8; x++) {
+        outStates[x]=0;
+    }
+
 #ifdef DDRA
 DDRA|=0 
 #ifdef BitPA0
